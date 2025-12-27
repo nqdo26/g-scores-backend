@@ -371,10 +371,6 @@ php artisan test
 
 MIT
 
-## 👨‍💻 Author
-
-Developed as part of a technical assessment for PHP Intern position.
-
 ---
 
 **API Status:** ✅ Operational  
