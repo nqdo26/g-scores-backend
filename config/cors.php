@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => [], // Disabled - CORS handled by nginx
 
     'allowed_methods' => ['*'],
 
