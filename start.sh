@@ -29,7 +29,10 @@ php artisan migrate --force
 
 # Cache config (do this before starting nginx)
 echo "Caching configuration..."
+php artisan config:clear
+php artisan cache:clear
 php artisan config:cache
+php artisan route:clear
 php artisan route:cache
 
 echo "Starting Nginx..."
