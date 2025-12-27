@@ -27,15 +27,23 @@ sleep 5
 echo "Running migrations..."
 php artisan migrate --force
 
-# Seed database (skip if already seeded)
-echo "Seeding database..."
-php artisan db:seed --class=StudentSeeder --force || echo "Database already seeded or seed failed"
-
-# Cache config
+# Cache config (do this before starting nginx)
 echo "Caching configuration..."
 php artisan config:cache
 php artisan route:cache
 
 echo "Starting Nginx..."
-# Start Nginx in foreground
-nginx -g "daemon off;"
+# Start Nginx in foreground (non-blocking)
+nginx -g "daemon off;" &
+
+# Check if database is empty before seeding
+STUDENT_COUNT=$(php artisan tinker --execute="echo \App\Models\Student::count();")
+if [ "$STUDENT_COUNT" -eq "0" ]; then
+    echo "Database is empty. Seeding database in background..."
+    php artisan db:seed --class=StudentSeeder --force > /var/www/storage/logs/seed.log 2>&1 &
+else
+    echo "Database already has $STUDENT_COUNT records. Skipping seed."
+fi
+
+# Keep container alive
+wait
