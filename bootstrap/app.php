@@ -12,10 +12,7 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // CORS handled by Nginx in production
-        // $middleware->api(prepend: [
-        //     \Illuminate\Http\Middleware\HandleCors::class,
-        // ]);
+        // CORS handled by both Nginx and Laravel for compatibility
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //
