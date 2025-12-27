@@ -33,13 +33,17 @@ COPY nginx.conf /etc/nginx/sites-available/default
 # Install dependencies
 RUN composer install --no-dev --optimize-autoloader --no-interaction
 
+# Create Laravel storage directories
+RUN mkdir -p /var/www/storage/framework/cache/data \
+    && mkdir -p /var/www/storage/framework/sessions \
+    && mkdir -p /var/www/storage/framework/views \
+    && mkdir -p /var/www/storage/logs \
+    && mkdir -p /var/www/bootstrap/cache
+
 # Set permissions
 RUN chown -R www-data:www-data /var/www \
-    && chmod -R 755 /var/www/storage \
-    && chmod -R 755 /var/www/bootstrap/cache
-
-# Generate app key
-RUN php artisan key:generate --force || true
+    && chmod -R 775 /var/www/storage \
+    && chmod -R 775 /var/www/bootstrap/cache
 
 # Expose port
 EXPOSE 8080
