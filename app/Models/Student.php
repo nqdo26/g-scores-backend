@@ -9,11 +9,6 @@ class Student extends Model
 {
     use HasFactory;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var array<int, string>
-     */
     protected $fillable = [
         'sbd',
         'toan',
@@ -28,11 +23,6 @@ class Student extends Model
         'ma_ngoai_ngu',
     ];
 
-    /**
-     * The attributes that should be cast.
-     *
-     * @var array<string, string>
-     */
     protected $casts = [
         'toan' => 'float',
         'ngu_van' => 'float',
@@ -45,9 +35,6 @@ class Student extends Model
         'gdcd' => 'float',
     ];
 
-    /**
-     * Get all scores as an associative array
-     */
     public function getScoresAttribute(): array
     {
         return [
@@ -64,9 +51,6 @@ class Student extends Model
         ];
     }
 
-    /**
-     * Calculate Group A total score (Math + Physics + Chemistry)
-     */
     public function getGroupATotalAttribute(): ?float
     {
         if ($this->toan !== null && $this->vat_li !== null && $this->hoa_hoc !== null) {
@@ -75,9 +59,6 @@ class Student extends Model
         return null;
     }
 
-    /**
-     * Check if student has all Group A subjects
-     */
     public function hasGroupAScores(): bool
     {
         return $this->toan !== null && $this->vat_li !== null && $this->hoa_hoc !== null;

@@ -6,16 +6,12 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
     public function up(): void
     {
         Schema::create('students', function (Blueprint $table) {
             $table->id();
             $table->string('sbd')->unique()->index()->comment('Số báo danh');
             
-            // Scores for each subject
             $table->decimal('toan', 3, 1)->nullable()->comment('Toán');
             $table->decimal('ngu_van', 3, 1)->nullable()->comment('Ngữ Văn');
             $table->decimal('ngoai_ngu', 3, 1)->nullable()->comment('Ngoại Ngữ');
@@ -30,16 +26,12 @@ return new class extends Migration
             
             $table->timestamps();
             
-            // Indexes for performance
             $table->index('toan');
             $table->index('vat_li');
             $table->index('hoa_hoc');
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('students');

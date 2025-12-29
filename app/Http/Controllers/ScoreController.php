@@ -15,26 +15,31 @@ class ScoreController extends Controller
         $this->scoreService = $scoreService;
     }
 
-    /**
-     * Check score by registration number (SBD)
-     * GET /api/scores/check/{sbd}
-     */
-    public function checkScore(string $sbd): JsonResponse
+    public function checkScore(Request $request): JsonResponse
     {
         try {
-            if (empty($sbd)) {
+            $uid = $request->query('uid');
+
+            if (empty($uid)) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Registration number (SBD) is required',
+                    'message' => 'Registration number (uid) is required',
                 ], 400);
             }
 
-            $result = $this->scoreService->checkScoreByRegistrationNumber($sbd);
+            if (!is_numeric($uid)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Registration number (uid) must be numeric',
+                ], 400);
+            }
+
+            $result = $this->scoreService->checkScoreByRegistrationNumber($uid);
 
             if (!$result) {
                 return response()->json([
                     'success' => false,
-                    'message' => "Student with SBD {$sbd} not found",
+                    'message' => "Student with uid {$uid} not found",
                 ], 404);
             }
 
@@ -51,10 +56,6 @@ class ScoreController extends Controller
         }
     }
 
-    /**
-     * Get score report by 4 levels for a subject
-     * GET /api/scores/report/{subject}
-     */
     public function getScoreReport(string $subject): JsonResponse
     {
         try {
@@ -95,10 +96,6 @@ class ScoreController extends Controller
         }
     }
 
-    /**
-     * Get statistics for a subject
-     * GET /api/scores/statistics/{subject}
-     */
     public function getStatistics(string $subject): JsonResponse
     {
         try {
@@ -139,10 +136,6 @@ class ScoreController extends Controller
         }
     }
 
-    /**
-     * Get top 10 students of group A (Math, Physics, Chemistry)
-     * GET /api/scores/top10/group-a
-     */
     public function getTop10GroupA(): JsonResponse
     {
         try {

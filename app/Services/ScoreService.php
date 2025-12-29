@@ -7,9 +7,6 @@ use Illuminate\Support\Facades\DB;
 
 class ScoreService
 {
-    /**
-     * Valid subjects mapping
-     */
     private const SUBJECT_NAMES = [
         'toan' => 'Toán',
         'ngu_van' => 'Ngữ Văn',
@@ -22,12 +19,8 @@ class ScoreService
         'gdcd' => 'GDCD',
     ];
 
-    /**
-     * Check scores by registration number (SBD)
-     */
     public function checkScoreByRegistrationNumber(string $sbd): ?array
     {
-        // Normalize SBD: pad with zeros to ensure 8 digits
         $sbd = str_pad($sbd, 8, '0', STR_PAD_LEFT);
         
         $student = Student::where('sbd', $sbd)->first();
@@ -55,16 +48,12 @@ class ScoreService
         return $result;
     }
 
-    /**
-     * Get score report by 4 levels for a specific subject
-     */
     public function getScoreReportByLevels(string $subjectKey): ?array
     {
         if (!isset(self::SUBJECT_NAMES[$subjectKey])) {
             return null;
         }
 
-        // Count students by levels
         $excellent = Student::where($subjectKey, '>=', 8)
             ->where($subjectKey, '<=', 10)
             ->count();
@@ -112,20 +101,15 @@ class ScoreService
         ];
     }
 
-    /**
-     * Get statistics for a specific subject
-     */
     public function getSubjectStatistics(string $subjectKey): ?array
     {
         if (!isset(self::SUBJECT_NAMES[$subjectKey])) {
             return null;
         }
 
-        // Cache statistics for 1 hour (data doesn't change frequently)
         $cacheKey = "statistics_{$subjectKey}";
         
         return cache()->remember($cacheKey, 3600, function () use ($subjectKey) {
-            // Get basic stats using aggregation
             $stats = Student::whereNotNull($subjectKey)
                 ->selectRaw("
                     COUNT(*) as total,
@@ -143,7 +127,6 @@ class ScoreService
                 return null;
             }
 
-            // Calculate median efficiently using database query
             $total = (int) $stats->total;
             $medianPosition = floor($total / 2);
             
@@ -151,14 +134,12 @@ class ScoreService
                 ->orderBy($subjectKey);
             
             if ($total % 2 === 0) {
-                // Even count: average of two middle values
                 $middleScores = $medianQuery
                     ->skip($medianPosition - 1)
                     ->take(2)
                     ->pluck($subjectKey);
                 $median = $middleScores->avg();
             } else {
-                // Odd count: middle value
                 $median = $medianQuery
                     ->skip($medianPosition)
                     ->value($subjectKey);
@@ -181,12 +162,8 @@ class ScoreService
         });
     }
 
-    /**
-     * Get top 10 students of group A (Math, Physics, Chemistry)
-     */
     public function getTop10GroupA(): array
     {
-        // Cache top 10 for 1 hour (rarely changes)
         return cache()->remember('top10_group_a', 3600, function () {
             $students = Student::whereNotNull('toan')
                 ->whereNotNull('vat_li')
@@ -211,17 +188,11 @@ class ScoreService
         });
     }
 
-    /**
-     * Get valid subjects
-     */
     public static function getValidSubjects(): array
     {
         return array_keys(self::SUBJECT_NAMES);
     }
 
-    /**
-     * Check if subject is valid
-     */
     public static function isValidSubject(string $subject): bool
     {
         return isset(self::SUBJECT_NAMES[$subject]);
